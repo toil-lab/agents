@@ -1,0 +1,14 @@
+schema_version: 1
+name: result-ingester
+team: status
+kind: deployment
+image: ghcr.io/toil-lab/result-ingester
+port: 9090
+health:
+  liveness: /healthz
+  readiness: /readyz
+resources:
+  cpu: 50m
+  memory: 32Mi
+secrets: [DATABASE_URL, REDIS_URL]
+depends_on: [status-db, checks/checks-redis]

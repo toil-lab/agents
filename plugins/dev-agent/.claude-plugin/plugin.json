@@ -1,0 +1,8 @@
+{
+  "name": "dev-agent",
+  "version": "0.1.0",
+  "description": "Developer agent: application code, tests, Dockerfile, and service.yaml, handed to the DevOps agent through GitHub.",
+  "author": { "name": "kevinaroe" },
+  "license": "MIT",
+  "keywords": ["developer", "kubernetes", "devops", "service-contract"]
+}

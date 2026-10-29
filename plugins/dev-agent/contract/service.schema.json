@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/toil-lab/agents/blob/main/contract/service.schema.json",
+  "title": "service.yaml",
+  "description": "What a service needs to run. The developer agent writes it next to the code; CI validates it; the DevOps agent reviews every change and turns it into a deployment. Version 1.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "name", "team", "kind", "image", "resources"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "name": { "$ref": "#/$defs/dns_name", "description": "Service name, unique within the team." },
+    "team": { "$ref": "#/$defs/dns_name", "description": "Owning team, as onboarded on the platform." },
+    "kind": { "enum": ["deployment", "cronjob"], "description": "A long-running service or a scheduled job." },
+    "image": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9.-]*(:[0-9]+)?(/[a-z0-9._-]+)+$",
+      "description": "Image repository without a tag. CI sets the tag."
+    },
+    "port": { "type": "integer", "minimum": 1, "maximum": 65535, "description": "Container port for traffic, health checks, and metrics." },
+    "health": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["liveness", "readiness"],
+      "properties": {
+        "liveness": { "$ref": "#/$defs/http_path" },
+        "readiness": { "$ref": "#/$defs/http_path" }
+      }
+    },
+    "schedule": { "type": "string", "pattern": "^\\S+( \\S+){4}$", "description": "Cron schedule, five fields. cronjob only." },
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cpu", "memory"],
+      "description": "Requests. The platform sets limits from these and the team's LimitRange.",
+      "properties": {
+        "cpu": { "type": "string", "pattern": "^[1-9][0-9]*m$" },
+        "memory": { "type": "string", "pattern": "^[1-9][0-9]*(Mi|Gi)$" }
+      }
+    },
+    "scaling": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min", "max", "metric"],
+      "properties": {
+        "min": { "type": "integer", "minimum": 0 },
+        "max": { "type": "integer", "minimum": 1 },
+        "metric": { "enum": ["none", "cpu", "queue"] },
+        "source": { "type": "string", "pattern": "^redis-stream/[a-z0-9:_-]+$", "description": "Queue to scale on when metric is queue." },
+        "target": { "type": "integer", "minimum": 1, "description": "CPU percent for cpu, pending messages per replica for queue." }
+      }
+    },
+    "config": { "$ref": "#/$defs/env_names", "description": "Non-secret environment variables the service reads." },
+    "secrets": { "$ref": "#/$defs/env_names", "description": "Secret environment variables. Values never go in the repo." },
+    "depends_on": {
+      "type": "array",
+      "uniqueItems": true,
+      "description": "Services or backing stores this one calls: name for the same team, team/name for another team.",
+      "items": { "type": "string", "pattern": "^([a-z][a-z0-9-]*/)?[a-z][a-z0-9-]*$" }
+    },
+    "egress": {
+      "type": "array",
+      "uniqueItems": true,
+      "description": "Outbound traffic beyond depends_on. Every entry is reviewed by the DevOps agent.",
+      "items": { "type": "string", "pattern": "^(any-http|any-https|any-tcp|[a-z0-9.-]+:[0-9]{1,5})$" }
+    },
+    "exposes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["host", "path"],
+      "properties": {
+        "host": { "type": "string", "pattern": "^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$" },
+        "path": { "$ref": "#/$defs/http_path" }
+      }
+    },
+    "backing": {
+      "type": "array",
+      "description": "Stores the platform provisions for this team. Declare each one in exactly one service.yaml.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "name"],
+        "properties": {
+          "type": { "enum": ["postgres", "redis"] },
+          "name": { "$ref": "#/$defs/dns_name" },
+          "storage": { "type": "string", "pattern": "^[1-9][0-9]*(Mi|Gi)$" }
+        }
+      }
+    },
+    "slo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["availability"],
+      "properties": {
+        "availability": { "type": "number", "minimum": 90, "maximum": 100 },
+        "p95_ms": { "type": "integer", "minimum": 1 }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "kind": { "const": "cronjob" } } },
+      "then": {
+        "required": ["schedule"],
+        "not": { "anyOf": [{ "required": ["scaling"] }, { "required": ["exposes"] }, { "required": ["health"] }] }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "deployment" } } },
+      "then": { "required": ["port", "health"], "not": { "required": ["schedule"] } }
+    },
+    {
+      "if": { "required": ["scaling"], "properties": { "scaling": { "properties": { "metric": { "const": "queue" } } } } },
+      "then": { "properties": { "scaling": { "required": ["source", "target"] } } }
+    },
+    {
+      "if": { "required": ["scaling"], "properties": { "scaling": { "properties": { "metric": { "const": "cpu" } } } } },
+      "then": { "properties": { "scaling": { "required": ["target"] } } }
+    }
+  ],
+  "$defs": {
+    "dns_name": { "type": "string", "pattern": "^[a-z]([a-z0-9-]{0,38}[a-z0-9])?$" },
+    "http_path": { "type": "string", "pattern": "^/[A-Za-z0-9._~/-]*$" },
+    "env_names": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" } }
+  }
+}

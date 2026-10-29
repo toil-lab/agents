@@ -1,0 +1,4 @@
+{
+  "$schema": "./contract/toil.schema.json",
+  "kind": "agents"
+}

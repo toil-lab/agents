@@ -1,0 +1,29 @@
+schema_version: 1
+name: status-api
+team: status
+kind: deployment
+image: ghcr.io/toil-lab/status-api
+port: 8080
+health:
+  liveness: /healthz
+  readiness: /readyz
+resources:
+  cpu: 100m
+  memory: 64Mi
+scaling:
+  min: 1
+  max: 4
+  metric: cpu
+  target: 70
+secrets: [DATABASE_URL]
+depends_on: [status-db]
+exposes:
+  host: status.localhost
+  path: /api
+backing:
+  - type: postgres
+    name: status-db
+    storage: 2Gi
+slo:
+  availability: 99.5
+  p95_ms: 200

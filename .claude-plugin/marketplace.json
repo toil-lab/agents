@@ -1,0 +1,17 @@
+{
+  "name": "toil-lab",
+  "owner": { "name": "kevinaroe" },
+  "description": "A developer agent and a DevOps agent that work in tandem through GitHub, with guard hooks and a shared service contract.",
+  "plugins": [
+    {
+      "name": "dev-agent",
+      "source": "./plugins/dev-agent",
+      "description": "Developer agent: application code, tests, Dockerfile, and service.yaml, handed to the DevOps agent through GitHub."
+    },
+    {
+      "name": "ops-agent",
+      "source": "./plugins/ops-agent",
+      "description": "DevOps agent: platform, deployments from service.yaml, upgrades, drift, incidents, and cost checks."
+    }
+  ]
+}

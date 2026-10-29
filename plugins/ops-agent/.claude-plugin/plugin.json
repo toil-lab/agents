@@ -1,0 +1,8 @@
+{
+  "name": "ops-agent",
+  "version": "0.1.0",
+  "description": "DevOps agent: platform, deployments from service.yaml, upgrades, drift, incidents, and cost checks.",
+  "author": { "name": "kevinaroe" },
+  "license": "MIT",
+  "keywords": ["devops", "kubernetes", "platform", "gitops", "sre"]
+}

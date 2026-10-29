@@ -1,0 +1,24 @@
+schema_version: 1
+name: probe-worker
+team: checks
+kind: deployment
+image: ghcr.io/toil-lab/probe-worker
+port: 9090
+health:
+  liveness: /healthz
+  readiness: /readyz
+resources:
+  cpu: 50m
+  memory: 32Mi
+scaling:
+  min: 1
+  max: 6
+  metric: queue
+  source: redis-stream/probes
+  target: 20
+config: [PROBE_TIMEOUT]
+secrets: [REDIS_URL]
+depends_on: [checks-redis]
+egress: [any-http]
+slo:
+  availability: 99.5

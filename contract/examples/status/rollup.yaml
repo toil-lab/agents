@@ -1,0 +1,11 @@
+schema_version: 1
+name: rollup
+team: status
+kind: cronjob
+image: ghcr.io/toil-lab/rollup
+schedule: "5 * * * *"
+resources:
+  cpu: 50m
+  memory: 64Mi
+secrets: [DATABASE_URL]
+depends_on: [status-db]

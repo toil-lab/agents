@@ -1,0 +1,16 @@
+schema_version: 1
+name: status-web
+team: status
+kind: deployment
+image: ghcr.io/toil-lab/status-web
+port: 8080
+health:
+  liveness: /healthz
+  readiness: /healthz
+resources:
+  cpu: 20m
+  memory: 16Mi
+depends_on: [status-api]
+exposes:
+  host: status.localhost
+  path: /

@@ -1,0 +1,9 @@
+#!/bin/sh
+# Run a guard with a working Python 3: python3 first, then python. On Windows, python3 is often a
+# Microsoft Store placeholder that doesn't run, and python is the real interpreter.
+# Usage: sh py <guard>.py [args]   (stdin passes through to the guard)
+here=$(dirname "$0")
+guard=$1
+shift
+if python3 -c 'import sys; sys.exit(sys.version_info < (3, 8))' 2>/dev/null; then py=python3; else py=python; fi
+exec "$py" "$here/$guard" "$@"

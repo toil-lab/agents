@@ -1,0 +1,19 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash|PowerShell",
+        "hooks": [
+          { "type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/py\" scope_guard.py --role dev", "timeout": 10 }
+        ]
+      },
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          { "type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/py\" kube_context_guard.py --role dev", "timeout": 10 },
+          { "type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/py\" host_load_guard.py", "timeout": 10 }
+        ]
+      }
+    ]
+  }
+}

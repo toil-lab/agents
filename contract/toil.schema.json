@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/toil-lab/agents/blob/main/contract/toil.schema.json",
+  "title": "toil.json",
+  "description": "Marks a repo for the agents and sets who owns what in it. Only humans edit this file.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "kind": {
+      "enum": ["app", "platform", "agents"],
+      "description": "app: owned by the developer agent except CI and CODEOWNERS. platform: owned by the DevOps agent. agents: the plugins themselves."
+    },
+    "team": { "type": "string", "pattern": "^[a-z]([a-z0-9-]{0,38}[a-z0-9])?$", "description": "Owning team. Required for app repos." }
+  },
+  "if": { "properties": { "kind": { "const": "app" } } },
+  "then": { "required": ["team"] }
+}
