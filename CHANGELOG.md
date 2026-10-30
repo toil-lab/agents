@@ -15,6 +15,9 @@ Phase 2 workspace.
 - `test` workflow runs the tests and the sync check on Python 3.12, and the guard and sync
   tests on Python 3.8, the oldest version the hooks support. Both are required checks.
 - `CODEOWNERS` names the platform team for the whole repo.
+- `pr-metrics` workflow calls the platform repo's check that fails until the PR description
+  has a number after `Human minutes:`. Both agents leave that line blank for the approver.
+  Added after PR 1 merged with the line still empty.
 
 Phase 1 skeleton.
 

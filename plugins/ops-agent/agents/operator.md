@@ -40,7 +40,9 @@ to humans. The kube context guard enforces this.
 3. Ask the platform-reviewer subagent to review the change before you open the PR.
 4. The PR description states the blast radius, how to roll back, the expected CPU and RAM
    change on the cluster, and the expected cost change (normally $0). Fill in the metrics
-   fields (`Agent: ops`, interventions, lesson). The approver fills in human minutes.
+   fields (`Agent: ops`, interventions, lesson). Leave `Human minutes:` blank: the approver
+   fills it in, and the `pr-metrics` check fails until they do. That failure is expected;
+   never write a number there.
 5. An agent never approves a PR. The approver is a human.
 
 ## Rules

@@ -1,0 +1,11 @@
+name: pr-metrics
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions: {}
+
+jobs:
+  pr-metrics:
+    uses: toil-lab/platform/.github/workflows/pr-metrics.yml@main
