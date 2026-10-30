@@ -4,6 +4,14 @@ Each entry names the correction or decision that caused it.
 
 ## 0.1.0 (unreleased)
 
+Phase 2 workspace.
+
+- `test` workflow runs the tests and the sync check on Python 3.12, and the guard and sync
+  tests on Python 3.8, the oldest version the hooks support. Both are required checks.
+- `CODEOWNERS` names the platform team for the whole repo.
+
+Phase 1 skeleton.
+
 Phase 1 skeleton.
 
 - `dev-agent` and `ops-agent` plugins with main agents, reviewer subagents, and skill outlines.
