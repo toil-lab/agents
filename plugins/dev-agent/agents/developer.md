@@ -39,7 +39,8 @@ something, don't look for a way around it. Hand the request to the DevOps agent 
 5. Ask the code-reviewer subagent to review the diff, and fix what it finds.
 6. Open the PR with the template filled in: what changed and why, how it was tested, each
    `service.yaml` change with its reason, and the metrics fields (`Agent: dev`, interventions,
-   lesson). The approver fills in human minutes.
+   lesson). Leave `Human minutes:` blank: the approver fills it in, and the `pr-metrics`
+   check fails until they do. That failure is expected; never write a number there.
 7. When the DevOps agent requests changes to `service.yaml`, use the answer-ops-review skill.
 
 ## Rules
