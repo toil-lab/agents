@@ -1,0 +1,5 @@
+#!/bin/sh
+# Runs git as this plugin's GitHub App (ops role). See toil_app.py.
+here=$(cd "$(dirname "$0")" && pwd)
+if python3 -c 'import sys; sys.exit(sys.version_info < (3, 8))' 2>/dev/null; then py=python3; else py=python; fi
+exec "$py" "$here/toil_app.py" git --role ops -- "$@"

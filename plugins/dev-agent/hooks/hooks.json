@@ -11,6 +11,7 @@
         "matcher": "Bash|PowerShell",
         "hooks": [
           { "type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/py\" kube_context_guard.py --role dev", "timeout": 10 },
+          { "type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/py\" identity_guard.py --role dev", "timeout": 10 },
           { "type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/py\" host_load_guard.py", "timeout": 10 }
         ]
       }

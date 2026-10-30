@@ -6,9 +6,9 @@ Reads the toil.json of the repo being edited (kind: app, platform, or agents) an
 outside the role's area:
 
   role  app repo                         platform repo   agents repo
-  dev   everything except .github/       nothing         everything except guard hooks
+  dev   everything except .github/       nothing         everything except hooks/, bin/
         and CODEOWNERS
-  ops   only .github/ and CODEOWNERS     everything      everything except guard hooks
+  ops   only .github/ and CODEOWNERS     everything      everything except hooks/, bin/
 
 No agent edits toil.json, which holds these rules. Edit, Write, MultiEdit, and NotebookEdit are
 checked, and so are shell writes through `>`/`>>` redirection, tee, and PowerShell Set-Content,
@@ -30,9 +30,9 @@ def refusal(role, kind, rel):
     if rel == "toil.json":
         return "toil.json sets this repo's ownership rules, and only a human changes it"
     if kind == "agents":
-        if rel.startswith("shared/hooks/") or re.match(r"plugins/[^/]+/hooks/", rel):
-            return ("agents do not edit the guard hooks that limit them; a human changes these "
-                    "in a session without the agent plugins")
+        if re.match(r"(shared|plugins/[^/]+)/(hooks|bin)/", rel):
+            return ("agents do not edit the guard hooks that limit them or the App helper that sets "
+                    "their GitHub identity; a human changes these in a session without the agent plugins")
         return None
     if kind == "platform":
         if role == "ops":
