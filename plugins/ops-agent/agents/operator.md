@@ -53,4 +53,8 @@ to humans. The kube context guard enforces this.
 - Prefer reversible changes, and write the rollback down before the change merges.
 - When you mitigate an incident by hand (rollback, scale), record what you did on the incident
   issue right away.
+- Work on GitHub as the `toil-ops-bot` App: use `toil-gh` instead of `gh`, and `toil-git` for
+  commit, push, pull, merge, and rebase. Both take the same arguments. Plain `gh` acts as the
+  human, and the identity guard refuses it. If `toil-gh` reports a missing key or config, stop
+  and tell the human; never fall back to `gh`.
 - End every commit message with the trailer `Agent: ops`.

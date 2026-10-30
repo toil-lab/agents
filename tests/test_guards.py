@@ -70,6 +70,8 @@ class ScopeGuardTest(unittest.TestCase):
             ("ops", "platform", "toil.json", "deny"),
             ("ops", "agents", "plugins/ops-agent/hooks/scope_guard.py", "deny"),
             ("dev", "agents", "shared/hooks/guardlib.py", "deny"),
+            ("dev", "agents", "shared/bin/toil_app.py", "deny"),
+            ("ops", "agents", "plugins/ops-agent/bin/toil-gh", "deny"),
             ("dev", "agents", "plugins/dev-agent/skills/build-feature/SKILL.md", None),
             ("ops", "agents", "contract/service.schema.json", None),
         ]
@@ -147,6 +149,34 @@ class KubeContextGuardTest(unittest.TestCase):
                 self.assertEqual(run("kube_context_guard.py", command=cmd, role=role), want)
 
 
+class IdentityGuardTest(unittest.TestCase):
+    def test_commands(self):
+        cases = [
+            ("dev", "gh pr create --fill", "deny"),
+            ("ops", "gh pr review 12 --approve -R toil-lab/checks", "deny"),
+            ("ops", "gh auth token", "deny"),
+            ("dev", "toil-gh pr create --fill", None),
+            ("dev", "git commit -m 'Add probe timeout'", "deny"),
+            ("dev", "git -C ../checks push origin feature", "deny"),
+            ("ops", "git -c user.name=x commit --amend", "deny"),
+            ("dev", "git pull --rebase", "deny"),
+            ("dev", "toil-git commit -m 'Add probe timeout'", None),
+            ("dev", "toil-git push -u origin feature", None),
+            ("dev", "git status && git diff --stat", None),
+            ("dev", "git log --oneline -5", None),
+            ("dev", "git fetch origin && git switch -c feature origin/main", None),
+            ("dev", "git add -A && git commit -m x", "deny"),
+            ("ops", "bash -c \"gh issue list\"", "deny"),
+            ("dev", "grep -r gh docs", None),
+            # Quoted strings are checked as commands (that is how bash -c "..." is caught), so this
+            # search is refused too. A false refusal is the safe direction.
+            ("dev", "grep -r 'git push' docs", "deny"),
+        ]
+        for role, cmd, want in cases:
+            with self.subTest(role=role, cmd=cmd):
+                self.assertEqual(run("identity_guard.py", command=cmd, role=role), want)
+
+
 class HostLoadGuardTest(unittest.TestCase):
     def test_commands(self):
         cases = [
@@ -218,7 +248,7 @@ class GcpSpendGuardTest(unittest.TestCase):
 
 class GuardsIgnoreOtherToolsTest(unittest.TestCase):
     def test_read_tool(self):
-        for script in ("kube_context_guard.py", "host_load_guard.py", "gcp_spend_guard.py"):
+        for script in ("kube_context_guard.py", "host_load_guard.py", "gcp_spend_guard.py", "identity_guard.py"):
             with self.subTest(script=script):
                 r = subprocess.run([sys.executable, os.path.join(HOOKS, script), "--role", "ops"],
                                    input=json.dumps({"tool_name": "Read", "tool_input": {"file_path": "x"}}),

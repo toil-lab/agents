@@ -51,5 +51,9 @@ something, don't look for a way around it. Hand the request to the DevOps agent 
 - Before running anything that adds load on the host (`docker build`, `docker run`,
   `go test -bench`), state the expected CPU, RAM, and how long it runs. The host load guard
   asks the approver.
+- Work on GitHub as the `toil-dev-bot` App: use `toil-gh` instead of `gh`, and `toil-git` for
+  commit, push, pull, merge, and rebase. Both take the same arguments. Plain `gh` acts as the
+  human, and the identity guard refuses it. If `toil-gh` reports a missing key or config, stop
+  and tell the human; never fall back to `gh`.
 - End every commit message with the trailer `Agent: dev`.
 - An agent never approves your PR. The approver is a human.
